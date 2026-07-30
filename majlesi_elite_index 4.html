@@ -1,0 +1,68 @@
+<!doctype html><html lang="fa" dir="rtl"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مجلسی الیت | فروشگاه پارچه</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial;background:#faf7f5;color:#241b1d}
+header{background:#21171a;color:#fff;padding:18px 6%;display:flex;justify-content:space-between;align-items:center}.logo{font-size:24px;font-weight:800}
+a,button{font-family:inherit}.call,.btn{color:#fff;background:#8d5948;padding:11px 18px;border-radius:25px;text-decoration:none;border:0;cursor:pointer}
+.hero{text-align:center;padding:65px 7%;background:#f1e2da}.hero h1{font-size:40px;margin:0 0 10px}
+section{padding:40px 7%}h2{text-align:center}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+.card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 5px 20px #0001;padding-bottom:18px}.card img{width:100%;height:220px;object-fit:cover;background:#eee}.card h3,.card p{padding:0 18px}.price{font-weight:bold;color:#8d5948}
+.about{background:#21171a;color:#fff;text-align:center}.about p{line-height:2}footer{text-align:center;padding:25px;background:#160f11;color:#ddd}
+.admin{display:none;background:#fff;margin:25px auto;padding:25px;max-width:900px;border-radius:20px;box-shadow:0 5px 25px #0002}.admin input,.admin textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:10px;font-family:inherit}.admin .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.manage{display:flex;gap:7px;padding:0 18px}.manage button{padding:8px 12px;border:0;border-radius:10px;cursor:pointer}.danger{background:#eee}.edit{background:#ead8cf}
+#loginBox{max-width:420px;margin:40px auto;text-align:center}.notice{font-size:13px;color:#777}
+@media(max-width:600px){.hero h1{font-size:30px}.admin .row{grid-template-columns:1fr}}
+</style></head><body>
+<header><div class="logo">مجلسی الیت</div><a class="call" href="tel:09214474030">۰۹۲۱۴۴۷۴۰۳۰</a></header>
+<div class="hero"><h1>مجلسی الیت</h1><p>فروش پارچه‌های شیک و مجلسی برای استایل‌های خاص</p><a class="btn" href="#products">مشاهده پارچه‌ها</a></div>
+<section id="products"><h2>پارچه‌ها</h2><div class="grid" id="productGrid"></div></section>
+<section class="about"><h2>سفارش و مشاوره</h2><p>برای استعلام قیمت، موجودی و سفارش با ما در تماس باشید.</p><a class="btn" href="https://wa.me/989214474030">واتساپ</a></section>
+
+<div id="loginBox" class="admin">
+<h2>ورود به مدیریت</h2><input id="password" type="password" placeholder="رمز مدیریت">
+<button class="btn" onclick="login()">ورود</button>
+<p class="notice">رمز پیش‌فرض: 1234 — بعداً حتماً آن را تغییر بده.</p>
+</div>
+
+<div id="panel" class="admin">
+<h2>پنل مدیریت محصولات</h2>
+<input type="hidden" id="editId">
+<input id="name" placeholder="نام پارچه">
+<textarea id="desc" placeholder="توضیحات پارچه"></textarea>
+<div class="row"><input id="price" placeholder="قیمت"><input id="image" placeholder="آدرس عکس، مثلاً images/fabric1.jpg"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn" onclick="saveProduct()">ذخیره محصول</button>
+<button class="danger" onclick="clearForm()">پاک کردن فرم</button>
+<button class="danger" onclick="logout()">خروج</button>
+</div>
+<p class="notice">برای عکس، فعلاً فایل عکس را کنار سایت بگذار و مسیر آن را در کادر عکس بنویس. برای سایت آنلاین واقعی، آپلود مستقیم عکس را می‌توان در مرحله بعد اضافه کرد.</p>
+<div id="adminList"></div>
+</div>
+<footer>مجلسی الیت | ۰۹۲۱۴۴۷۴۰۳۰</footer>
+
+<script>
+const KEY="majlesi_elite_products";
+let products=JSON.parse(localStorage.getItem(KEY)||"null")||[
+{id:1,name:"پارچه مجلسی لوکس",desc:"مناسب لباس‌های مهمانی و مجلسی",price:"برای استعلام تماس بگیرید",image:""},
+{id:2,name:"ساتن براق",desc:"لطیف و مناسب دوخت لباس مجلسی",price:"برای استعلام تماس بگیرید",image:""},
+{id:3,name:"ژاکارد شیک",desc:"انتخابی خاص برای لباس‌های رسمی",price:"برای استعلام تماس بگیرید",image:""}
+];
+function render(){
+localStorage.setItem(KEY,JSON.stringify(products));
+document.getElementById("productGrid").innerHTML=products.map(p=>`<article class="card">${p.image?`<img src="${p.image}" alt="${p.name}">`:`<div style="height:220px;background:#ead8cf;display:flex;align-items:center;justify-content:center">عکس پارچه</div>`}<h3>${p.name}</h3><p>${p.desc}</p><p class="price">${p.price}</p></article>`).join("");
+document.getElementById("adminList").innerHTML=products.map(p=>`<div style="padding:12px 0;border-top:1px solid #eee"><b>${p.name}</b><div class="manage"><button class="edit" onclick="editProduct(${p.id})">ویرایش</button><button class="danger" onclick="deleteProduct(${p.id})">حذف</button></div></div>`).join("");
+}
+function login(){if(document.getElementById("password").value==="1234"){document.getElementById("loginBox").style.display="none";document.getElementById("panel").style.display="block";}else alert("رمز اشتباه است");}
+function saveProduct(){
+let id=+document.getElementById("editId").value;
+let p={id:id||Date.now(),name:name.value.trim(),desc:desc.value.trim(),price:price.value.trim(),image:image.value.trim()};
+if(!p.name)return alert("نام پارچه را وارد کن");
+if(id)products=products.map(x=>x.id===id?p:x);else products.push(p);
+clearForm();render();alert("ذخیره شد");
+}
+function editProduct(id){let p=products.find(x=>x.id===id);editId.value=p.id;name.value=p.name;desc.value=p.desc;price.value=p.price;image.value=p.image;window.scrollTo({top:document.getElementById("panel").offsetTop,behavior:"smooth"});}
+function deleteProduct(id){if(confirm("این پارچه حذف شود؟")){products=products.filter(x=>x.id!==id);render();}}
+function clearForm(){editId.value="";name.value="";desc.value="";price.value="";image.value="";}
+function logout(){panel.style.display="none";loginBox.style.display="block";password.value="";}
+render();
+</script></body></html>
